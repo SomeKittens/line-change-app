@@ -4,12 +4,13 @@ import { GameScreen } from './GameScreen';
 import { RosterScreen } from './RosterScreen';
 import { SettingsScreen } from './SettingsScreen';
 import { SetupScreen } from './SetupScreen';
+import { UpdatePrompt } from './UpdatePrompt';
 import { StoreContext, useStoreState } from './useStore';
 
 /** 'play' shows the live game if there is one, otherwise game setup. */
 export type Screen = 'roster' | 'play' | 'settings';
 
-export function App({ storage }: { storage?: Storage }) {
+export function App({ storage, withUpdates = false }: { storage?: Storage; withUpdates?: boolean }) {
   const ctx = useStoreState(storage);
   const [store] = ctx;
   const [screen, setScreen] = useState<Screen>(() =>
@@ -27,6 +28,7 @@ export function App({ storage }: { storage?: Storage }) {
         {screen === 'play' && (live ? <GameScreen /> : <SetupScreen />)}
         {screen === 'settings' && <SettingsScreen />}
       </main>
+      {withUpdates && <UpdatePrompt />}
       <nav class="tabs">
         {tab('roster', 'Roster')}
         {tab('play', live ? 'Game' : 'New game')}
