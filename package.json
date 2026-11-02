@@ -1,7 +1,7 @@
 {
   "name": "line-change-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "Fair, fast youth hockey line changes. Offline PWA.",
   "directories": {
     "doc": "docs"
   },
@@ -12,8 +12,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Randall Koutnik",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "preact": "^11.1.1",
