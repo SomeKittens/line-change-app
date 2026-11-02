@@ -1,4 +1,12 @@
+import { newGame, startGame } from '../src/model/rotation';
 import type { GameState } from '../src/model/types';
+
+export const NINE = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+
+export function started(ids: string[], wall = 0): GameState {
+  const names = Object.fromEntries(ids.map((id) => [id, id.toUpperCase()]));
+  return startGame(newGame({ id: 'g', date: '2026-11-01', goalieId: null, queue: ids, out: [], names }), wall);
+}
 
 export function makeGame(overrides: Partial<GameState> = {}): GameState {
   return {
