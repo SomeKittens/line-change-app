@@ -84,3 +84,11 @@ input { background: var(--surface); border: 1px solid var(--border); border-radi
 .totals summary { color: var(--muted); min-height: 48px; display: flex; align-items: center; }
 .totals ol { list-style: none; padding: 0; margin: 0; }
 .totals li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+
+.stepper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.stepper .row { margin: 0; gap: 12px; }
+.stepper b { font-size: 20px; min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+.stepper .btn { width: 52px; font-size: 22px; }
+.file { display: flex; align-items: center; justify-content: center; position: relative; }
+.file input { position: absolute; inset: 0; opacity: 0; min-height: 0; }
+.error { color: var(--coming-off); }
