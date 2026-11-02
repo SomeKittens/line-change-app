@@ -48,3 +48,16 @@ input { background: var(--surface); border: 1px solid var(--border); border-radi
 .player-row { width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-height: 56px; display: flex; flex-direction: column; gap: 6px; }
 .pname { font-size: 19px; font-weight: 600; }
 .num { color: var(--muted); font-weight: 400; }
+
+.small { font-size: 14px; }
+.chips.big .chip { min-height: 52px; font-size: 18px; padding: 0 18px; }
+.chip.off { text-decoration: line-through; color: var(--coming-off); border-color: var(--coming-off); }
+.select { width: 100%; min-height: 52px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0 12px; font-size: 17px; }
+.btn.go { background: var(--going-out); border-color: var(--going-out); color: #111; font-size: 19px; min-height: 56px; }
+.queue { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; counter-reset: q; }
+.queue li { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px 12px 4px 0; min-height: 56px; counter-increment: q; }
+.queue li.starting { border-color: var(--going-out); }
+.queue li::after { content: counter(q); order: -1; color: var(--muted); width: 18px; text-align: right; }
+.grip { order: -2; width: 48px; min-height: 48px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--muted); touch-action: none; cursor: grab; }
+.qname { font-size: 19px; font-weight: 600; }
+.tag-start { margin-left: auto; font-size: 12px; color: var(--going-out); text-transform: uppercase; letter-spacing: 1px; }
