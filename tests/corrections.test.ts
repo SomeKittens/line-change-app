@@ -73,4 +73,15 @@ describe('corrections', () => {
     expect(canUndo(g)).toBe(false);
     expect(undo(g)).toBe(g);
   });
+
+  test('undo clears the change debounce so the coach can redo immediately', () => {
+    const g = undo(changeDone(started(NINE), 180000));
+    expect(changeDone(g, 181000).onIce).toEqual(['e', 'f', 'g', 'h']);
+  });
+
+  test('history entries record what they undo and when', () => {
+    const g = swap(changeDone(started(NINE), 180000), 'e', 'i', 200000);
+    expect(g.history.map((h) => [h.label, h.at])).toEqual([['change', 180000], ['swap', 200000]]);
+  });
 });
+

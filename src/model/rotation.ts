@@ -49,8 +49,8 @@ export function snapshot(g: GameState): Lineup {
   return { onIce, queue, out, shifts, arrivals, lastChangeAt };
 }
 
-export function withHistory(g: GameState): GameState {
-  return { ...g, history: [...g.history, snapshot(g)].slice(-UNDO_LIMIT) };
+export function withHistory(g: GameState, label: string, wallNow: number): GameState {
+  return { ...g, history: [...g.history, { ...snapshot(g), label, at: wallNow }].slice(-UNDO_LIMIT) };
 }
 
 export function openShiftStart(g: GameState, id: string): number {
@@ -74,7 +74,7 @@ export function changeDone(g: GameState, wallNow: number): GameState {
   const { goingOut, comingOff } = planChange(g, wallNow);
   if (goingOut.length === 0) return g;
   const now = gameNow(g, wallNow);
-  const h = withHistory(g);
+  const h = withHistory(g, 'change', wallNow);
   // Returning kids rejoin the queue least-ice-time first, so nobody drifts to the back every cycle.
   const returning = [...comingOff].sort((x, y) => iceTimeMs(g, x, wallNow) - iceTimeMs(g, y, wallNow));
   return {

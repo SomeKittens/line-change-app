@@ -5,7 +5,7 @@ import { ICE_SLOTS, type GameState } from './types';
 export function addLate(g: GameState, id: string, name: string, wallNow: number): GameState {
   if (g.onIce.includes(id) || g.queue.includes(id)) return g;
   const now = gameNow(g, wallNow);
-  const h = withHistory(g);
+  const h = withHistory(g, 'late arrival', wallNow);
   const base = {
     ...h,
     out: g.out.filter((x) => x !== id),
@@ -22,7 +22,7 @@ export function addLate(g: GameState, id: string, name: string, wallNow: number)
 export function removeFromGame(g: GameState, id: string, wallNow: number): GameState {
   if (g.out.includes(id)) return g;
   const now = gameNow(g, wallNow);
-  const h = withHistory(g);
+  const h = withHistory(g, 'remove', wallNow);
   const out = [...g.out, id];
   if (!g.onIce.includes(id)) {
     return { ...h, queue: g.queue.filter((x) => x !== id), out };
@@ -48,7 +48,7 @@ export function swap(g: GameState, iceId: string, benchId: string, wallNow: numb
   const queue = [...g.queue];
   queue[benchIdx] = iceId;
   return {
-    ...withHistory(g),
+    ...withHistory(g, 'swap', wallNow),
     onIce,
     queue,
     shifts: [...closeShifts(g.shifts, [iceId], now), { playerId: benchId, start: now }],
@@ -62,5 +62,7 @@ export function canUndo(g: GameState): boolean {
 export function undo(g: GameState): GameState {
   const prev = g.history.at(-1);
   if (!prev) return g;
-  return { ...g, ...prev, history: g.history.slice(0, -1) };
+  const { label: _label, at: _at, ...lineup } = prev;
+  // Clearing the debounce lets the coach redo a change right after undoing it.
+  return { ...g, ...lineup, history: g.history.slice(0, -1), lastChangeWall: null };
 }

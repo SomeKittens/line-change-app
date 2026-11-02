@@ -3,7 +3,8 @@ import { gameNow } from '../src/model/clock';
 import {
   STORAGE_KEY, activeGame, finishGame, archivePlayer, defaultStore, exportJson, importJson, loadStore, putGame, saveStore, upsertPlayer,
 } from '../src/storage/store';
-import { makeGame, memoryStorage } from './fixtures';
+import { NINE, makeGame, memoryStorage, started } from './fixtures';
+import { changeDone, iceTimeMs } from '../src/model/rotation';
 
 describe('store', () => {
   test('loads defaults when empty', () => {
@@ -58,7 +59,7 @@ describe('store', () => {
   });
 
   test('finishing a game pauses it, stamps endedAt and drops undo history', () => {
-    const g = makeGame({ id: 'live', runningSince: 1000, history: [makeGame()] });
+    const g = makeGame({ id: 'live', runningSince: 1000, history: [{ ...makeGame(), label: 'change', at: 0 }] });
     const s = finishGame({ ...putGame(defaultStore(), g), activeGameId: 'live' }, 61000);
     expect(s.activeGameId).toBeNull();
     expect(s.games[0].endedAt).toBeDefined();
@@ -66,4 +67,15 @@ describe('store', () => {
     expect(s.games[0].runningSince).toBeNull();
     expect(s.games[0].elapsedMs).toBe(60000);
   });
+
+  test('finishing a forgotten game can stop ice time at the last change', () => {
+    const g = changeDone(started(NINE, 0), 180000);
+    const week = 7 * 24 * 3600 * 1000;
+    const s = finishGame({ ...putGame(defaultStore(), g), activeGameId: g.id }, week, { atLastChange: true });
+    const done = s.games[0];
+    expect(gameNow(done, week)).toBe(180000);
+    expect(iceTimeMs(done, 'e', week)).toBe(0);
+    expect(iceTimeMs(done, 'a', week)).toBe(180000);
+  });
 });
+

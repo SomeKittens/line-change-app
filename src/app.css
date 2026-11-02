@@ -94,3 +94,4 @@ input { background: var(--surface); border: 1px solid var(--border); border-radi
 .error { color: var(--coming-off); }
 
 .update-bar { position: fixed; left: 12px; right: 12px; bottom: calc(72px + env(safe-area-inset-bottom)); min-height: 52px; border: none; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; font-size: 16px; }
+.btn.undo { font-size: 14px; line-height: 1.15; }

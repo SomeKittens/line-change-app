@@ -36,6 +36,12 @@ export interface Lineup {
   lastChangeAt: number;
 }
 
+/** Undo snapshot: the lineup before an action, what that action was, and when (wall ms). */
+export interface HistoryEntry extends Lineup {
+  label: string;
+  at: number;
+}
+
 export interface GameState extends Lineup {
   id: string;
   date: string;
@@ -46,7 +52,7 @@ export interface GameState extends Lineup {
   /** Wall ms when last resumed; null means paused. */
   runningSince: number | null;
   lastChangeWall: number | null;
-  history: Lineup[];
+  history: HistoryEntry[];
   endedAt?: string;
 }
 

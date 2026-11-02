@@ -15,13 +15,18 @@ export function fmt(ms: number): string {
 
 type Sheet = null | 'late' | 'fix';
 
+/** Taps on Undo this soon after any action are treated as a stray double-tap. */
+const UNDO_GUARD_MS = 1000;
+/** A shift this long means the game was probably left running after the final whistle. */
+const FORGOTTEN_MS = 20 * 60 * 1000;
+
 export function GameScreen() {
   const [store, update] = useStore();
   const g = activeGame(store)!;
   const [now, setNow] = useState(Date.now());
   const [sheet, setSheet] = useState<Sheet>(null);
   const [picked, setPicked] = useState<string | null>(null);
-  const [confirmEnd, setConfirmEnd] = useState(false);
+  const [confirm, setConfirm] = useState<null | 'period' | 'end'>(null);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -43,7 +48,13 @@ export function GameScreen() {
     setPicked(null);
   };
 
+  const arm = (what: 'period' | 'end') => {
+    setConfirm(what);
+    setTimeout(() => setConfirm((c) => (c === what ? null : c)), 4000);
+  };
+
   const running = g.runningSince !== null;
+  const lastAction = g.history.at(-1);
   const plan = planChange(g, now);
   const name = (id: string) => g.names[id] ?? '?';
   const canChange = plan.goingOut.length > 0;
@@ -69,7 +80,10 @@ export function GameScreen() {
       </div>
 
       {!running && <div class="paused">Clock paused · ice time not counting</div>}
-      {due && <div class="banner">CHANGE AT NEXT WHISTLE</div>}
+      {/* Always rendered so CHANGE DONE never shifts under the coach's thumb when the banner clears. */}
+      <div class="banner" data-testid="banner-slot" style={{ visibility: due ? 'visible' : 'hidden' }} aria-hidden={!due}>
+        CHANGE AT NEXT WHISTLE
+      </div>
 
       {canChange ? (
         <>
@@ -109,12 +123,21 @@ export function GameScreen() {
         </div>
       )}
 
-      <button class="change" disabled={!running || !canChange} onClick={() => act(changeDone)}>
+      <button class="change" disabled={!canChange} onClick={() => act(changeDone)}>
         CHANGE DONE
       </button>
 
       <div class="actions">
-        <button class="btn" disabled={!canUndo(g)} onClick={() => act((x) => undo(x))}>Undo</button>
+        <button
+          class="btn undo"
+          disabled={!canUndo(g)}
+          onClick={() => {
+            if (lastAction && Date.now() - lastAction.at < UNDO_GUARD_MS) return;
+            act((x) => undo(x));
+          }}
+        >
+          {lastAction ? `Undo ${lastAction.label} · ${fmt(now - lastAction.at)} ago` : 'Undo'}
+        </button>
         <button class={`btn ${sheet === 'late' ? 'primary' : ''}`} onClick={() => (sheet === 'late' ? closeSheet() : (closeSheet(), setSheet('late')))}>
           Late arrival
         </button>
@@ -173,20 +196,31 @@ export function GameScreen() {
       )}
 
       <div class="actions">
-        <button class="btn" onClick={() => act(nextPeriod)}>Next period</button>
         <button
-          class="btn danger"
+          class="btn"
           onClick={() => {
-            if (!confirmEnd) {
-              setConfirmEnd(true);
-              setTimeout(() => setConfirmEnd(false), 4000);
-              return;
-            }
-            update((s) => finishGame(s, Date.now()));
+            if (confirm !== 'period') return arm('period');
+            setConfirm(null);
+            act(nextPeriod);
           }}
         >
-          {confirmEnd ? 'Tap again to end' : 'End game'}
+          {confirm === 'period' ? `Tap again: period ${g.period + 1}` : 'Next period'}
         </button>
+        {confirm === 'end' && shiftElapsedMs(g, now) > FORGOTTEN_MS ? (
+          <>
+            <button class="btn danger" onClick={() => update((s) => finishGame(s, Date.now(), { atLastChange: true }))}>
+              End at last change
+            </button>
+            <button class="btn danger" onClick={() => update((s) => finishGame(s, Date.now()))}>End now</button>
+          </>
+        ) : (
+          <button
+            class="btn danger"
+            onClick={() => (confirm !== 'end' ? arm('end') : update((s) => finishGame(s, Date.now())))}
+          >
+            {confirm === 'end' ? 'Tap again to end' : 'End game'}
+          </button>
+        )}
       </div>
 
       <details class="totals">

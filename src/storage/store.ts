@@ -75,14 +75,19 @@ export function putGame(s: Store, g: GameState): Store {
   return { ...s, games: exists ? s.games.map((x) => (x.id === g.id ? g : x)) : [...s.games, g] };
 }
 
-/** Ends the active game: freezes the clock, closes open shifts, and drops undo history to keep storage small. */
-export function finishGame(s: Store, wallNow: number): Store {
+/**
+ * Ends the active game: freezes the clock, closes open shifts, and drops undo history to keep storage small.
+ * With atLastChange, the game ends at the last change instead of now, for a game left running after the final whistle.
+ */
+export function finishGame(s: Store, wallNow: number, opts: { atLastChange?: boolean } = {}): Store {
   const g = activeGame(s);
   if (!g) return s;
   const paused = pause(g, wallNow);
+  const end = opts.atLastChange ? Math.min(g.lastChangeAt, paused.elapsedMs) : paused.elapsedMs;
   const done: GameState = {
     ...paused,
-    shifts: closeShifts(g.shifts, g.onIce, gameNow(paused, wallNow)),
+    elapsedMs: end,
+    shifts: closeShifts(g.shifts, g.onIce, end),
     history: [],
     endedAt: new Date(wallNow).toISOString(),
   };
