@@ -1,6 +1,6 @@
 import Sortable from 'sortablejs';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { buildQueue } from '../model/balance';
+import { buildQueue, priorIceMs } from '../model/balance';
 import { newGame, startGame } from '../model/rotation';
 import { ICE_SLOTS } from '../model/types';
 import { newId, putGame } from '../storage/store';
@@ -19,6 +19,7 @@ export function SetupScreen() {
   const skaters = present.filter((p) => p.id !== goalieId && !notSkating.includes(p.id));
   const nameOf = (id: string) => roster.find((p) => p.id === id)?.name ?? '?';
   const toggle = (list: string[], id: string) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+  const build = () => buildQueue(skaters, priorIceMs(store.games, skaters.map((p) => p.id)));
 
   // Any attendance change invalidates a built queue.
   useEffect(() => setQueue(null), [here.join(), goalieId, notSkating.join()]);
@@ -108,7 +109,7 @@ export function SetupScreen() {
 
       <div class="label">4. Queue ({skaters.length} skaters)</div>
       {!queue ? (
-        <button class="btn primary wide" disabled={skaters.length === 0} onClick={() => setQueue(buildQueue(skaters))}>
+        <button class="btn primary wide" disabled={skaters.length === 0} onClick={() => setQueue(build())}>
           Build queue
         </button>
       ) : (
@@ -127,7 +128,7 @@ export function SetupScreen() {
             ))}
           </ol>
           <div class="row">
-            <button class="btn" onClick={() => setQueue(buildQueue(skaters))}>Rebuild</button>
+            <button class="btn" onClick={() => setQueue(build())}>Rebuild</button>
             <button class="btn go" style={{ flex: 1 }} onClick={start}>Start game</button>
           </div>
         </>

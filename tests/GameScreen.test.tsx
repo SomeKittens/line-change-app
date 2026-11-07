@@ -130,3 +130,21 @@ test('ending a long-forgotten game offers to stop ice time at the last change', 
   expect(g.elapsedMs).toBe(0);
 });
 
+
+test('player table shows every kid with current stint, ice and bench totals', () => {
+  renderAt(90000);
+  fireEvent.click(screen.getByText('CHANGE DONE'));
+  act(() => { vi.advanceTimersByTime(30000); });
+  const rows = within(screen.getByTestId('players')).getAllByRole('row').slice(1);
+  const byName = Object.fromEntries(rows.map((r) => {
+    const [n, ...rest] = [...r.querySelectorAll('td')].map((td) => td.textContent);
+    return [n, rest];
+  }));
+  expect(rows).toHaveLength(9);
+  // A–D skated 1:30, then sat 0:30.
+  expect(byName.A).toEqual(['sat 0:30', '1:30', '0:30']);
+  // E–H sat 1:30, now 0:30 into their shift.
+  expect(byName.E).toEqual(['on 0:30', '0:30', '1:30']);
+  // I has sat the whole 2:00.
+  expect(byName.I).toEqual(['sat 2:00', '0:00', '2:00']);
+});

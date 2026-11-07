@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { gameNow, nextPeriod, pause, resume } from '../model/clock';
 import { addLate, canUndo, removeFromGame, swap, undo } from '../model/corrections';
-import { benchTimeMs, changeDone, iceTimeMs, planChange, shiftElapsedMs } from '../model/rotation';
+import { benchTimeMs, benchTotalMs, changeDone, iceTimeMs, openShiftStart, planChange, shiftElapsedMs } from '../model/rotation';
 import type { GameState } from '../model/types';
 import { activeGame, finishGame, putGame } from '../storage/store';
 import { useBuzz } from './useBuzz';
@@ -223,21 +223,34 @@ export function GameScreen() {
         )}
       </div>
 
-      <details class="totals">
-        <summary>Ice time so far</summary>
-        <ol>
-          {[...g.onIce, ...g.queue, ...g.out]
-            .map((id) => ({ id, ms: iceTimeMs(g, id, now) }))
-            .sort((a, b) => a.ms - b.ms)
-            .map(({ id, ms }) => (
-              <li key={id}>
-                <span>{name(id)}{g.out.includes(id) ? ' (out)' : ''}</span>
-                <span>{fmt(ms)}</span>
-              </li>
-            ))}
-        </ol>
-        <p class="muted small">Game clock {fmt(gameNow(g, now))}</p>
-      </details>
+      <div class="players" data-testid="players">
+        <div class="glabel">Players · game clock {fmt(gameNow(g, now))}</div>
+        <table>
+          <thead>
+            <tr><th></th><th>Now</th><th>Ice</th><th>Bench</th></tr>
+          </thead>
+          <tbody>
+            {[...g.onIce, ...g.queue, ...g.out]
+              .map((id) => ({ id, ice: iceTimeMs(g, id, now) }))
+              .sort((a, b) => a.ice - b.ice)
+              .map(({ id, ice }) => {
+                const status = g.onIce.includes(id) ? 'on' : g.out.includes(id) ? 'out' : 'bench';
+                return (
+                  <tr key={id} class={status}>
+                    <td>{name(id)}</td>
+                    <td>
+                      {status === 'on' && `on ${fmt(gameNow(g, now) - openShiftStart(g, id))}`}
+                      {status === 'bench' && `sat ${fmt(benchTimeMs(g, id, now))}`}
+                      {status === 'out' && 'out'}
+                    </td>
+                    <td>{fmt(ice)}</td>
+                    <td>{status === 'out' ? '–' : fmt(benchTotalMs(g, id, now))}</td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

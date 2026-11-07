@@ -81,9 +81,14 @@ input { background: var(--surface); border: 1px solid var(--border); border-radi
 .actions { display: flex; gap: 8px; }
 .actions .btn { flex: 1; padding: 0 8px; }
 .sheet .chips { margin-bottom: 4px; }
-.totals summary { color: var(--muted); min-height: 48px; display: flex; align-items: center; }
-.totals ol { list-style: none; padding: 0; margin: 0; }
-.totals li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.players { margin-top: 8px; }
+.players table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 16px; }
+.players th { font-size: 12px; font-weight: 400; color: var(--muted); text-align: right; padding: 0 0 4px 8px; }
+.players td { padding: 7px 0 7px 8px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.players td:first-child { text-align: left; padding-left: 0; white-space: normal; font-weight: 600; }
+.players td:nth-child(2) { color: var(--muted); font-size: 14px; }
+.players tr.bench td:first-child { color: var(--bench); font-weight: 400; }
+.players tr.out td { color: var(--muted); }
 
 .stepper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .stepper .row { margin: 0; gap: 12px; }

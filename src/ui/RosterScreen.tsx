@@ -25,7 +25,6 @@ function PlayerForm({ initial, onDone }: { initial: Player; onDone: () => void }
   const [p, setP] = useState(initial);
   const [newTag, setNewTag] = useState('');
   const [confirmRemove, setConfirmRemove] = useState(false);
-  const others = store.players.filter((o) => !o.archived && o.id !== p.id);
   const isNew = !store.players.some((o) => o.id === p.id);
   const nameRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -63,18 +62,6 @@ function PlayerForm({ initial, onDone }: { initial: Player; onDone: () => void }
         <input placeholder="New tag" value={newTag} onInput={(e) => setNewTag(e.currentTarget.value)} onKeyDown={(e) => e.key === 'Enter' && addTag()} />
         <button class="btn" onClick={addTag}>Add tag</button>
       </div>
-      {others.length > 0 && (
-        <>
-          <div class="label">Plays well with</div>
-          <div class="chips">
-            {others.map((o) => (
-              <button key={o.id} class={`chip ${p.buddies.includes(o.id) ? 'on' : ''}`} onClick={() => setP({ ...p, buddies: toggle(p.buddies, o.id) })}>
-                {o.name}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
       <div class="row">
         <button
           class="btn primary"
@@ -108,7 +95,6 @@ export function RosterScreen() {
   const [store] = useStore();
   const [editing, setEditing] = useState<Player | null>(null);
   const players = store.players.filter((p) => !p.archived);
-  const nameOf = (id: string) => store.players.find((p) => p.id === id)?.name;
 
   return (
     <section>
@@ -126,7 +112,6 @@ export function RosterScreen() {
                 </span>
                 <span class="chips small">
                   {p.tags.map((t) => <span key={t} class="chip on">{t}</span>)}
-                  {p.buddies.map((b) => nameOf(b) && <span key={b} class="chip buddy">♥ {nameOf(b)}</span>)}
                 </span>
               </button>
             </li>

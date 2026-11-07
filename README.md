@@ -8,8 +8,8 @@ At a whistle, glance at the phone: kids going out are in big green letters, kids
 
 ## Features
 
-- **Roster:** names, optional jersey numbers, free-form strength tags ("strong", "fast", "still learning", or your own), and "plays well with" buddy links.
-- **Game setup:** mark who showed up, pick the goalie, mark anyone here but not skating. The app builds a starting queue that spreads each strength out and keeps buddies together. Drag to adjust.
+- **Roster:** names, optional jersey numbers, free-form strength tags ("strong", "fast", "still learning", or your own).
+- **Game setup:** mark who showed up, pick the goalie, mark anyone here but not skating. The app builds a starting queue that spreads each strength out; ties go to whoever has averaged less ice time in past games. Drag to adjust.
 - **Rotating queue:** 4 skaters on the ice; whoever has waited longest goes out next. Works with any number of skaters. With a short bench, the kids who have been on longest come off.
 - **Buzz:** vibrates at 3:00 (adjustable) to mean "change at the next whistle", and again every 30 seconds until you tap CHANGE DONE.
 - **Bench-proof corrections:** late arrivals go to the front of the queue. You can swap a kid, remove an injured kid, undo the last action (labeled with what it undoes), pause between periods, and end a forgotten game at the last change.

@@ -103,3 +103,8 @@ export function benchTimeMs(g: GameState, id: string, wallNow: number): number {
 export function shiftElapsedMs(g: GameState, wallNow: number): number {
   return gameNow(g, wallNow) - g.lastChangeAt;
 }
+
+/** Total time on the bench since arriving: time in the game minus ice time. */
+export function benchTotalMs(g: GameState, id: string, wallNow: number): number {
+  return Math.max(0, gameNow(g, wallNow) - (g.arrivals[id] ?? 0) - iceTimeMs(g, id, wallNow));
+}

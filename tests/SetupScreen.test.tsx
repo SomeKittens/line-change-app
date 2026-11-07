@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import type { Store } from '../src/model/types';
 import { defaultStore, loadStore, saveStore, upsertPlayer } from '../src/storage/store';
 import { App } from '../src/ui/App';
-import { memoryStorage } from './fixtures';
+import { makeGame, memoryStorage } from './fixtures';
 
 function seeded(names: string[]): Storage {
   const mem = memoryStorage();
@@ -30,4 +30,17 @@ test('start game puts present kids in rotation, excluding goalie and non-skaters
   expect(g.runningSince).not.toBeNull();
   expect(loadStore(mem).activeGameId).toBe(g.id);
   expect(g.names.p6).toBeUndefined();
+});
+
+test('queue puts kids with less ice time in past games first', () => {
+  const mem = seeded(['Mia', 'Theo', 'Ava', 'Sam', 'Lily']);
+  const s = loadStore(mem);
+  const past = { ...makeGame({ id: 'old', endedAt: '2026-11-01T11:00:00.000Z' }),
+    shifts: [['p0', 500], ['p1', 400], ['p2', 300], ['p3', 200], ['p4', 100]].map(([playerId, ms]) => ({ playerId: playerId as string, start: 0, end: ms as number })) };
+  saveStore({ ...s, games: [past] }, mem);
+  render(<App storage={mem} />);
+  const here = screen.getByTestId('attendance');
+  for (const n of ['Mia', 'Theo', 'Ava', 'Sam', 'Lily']) fireEvent.click(within(here).getByText(n));
+  fireEvent.click(screen.getByText('Build queue'));
+  expect([...document.querySelectorAll('.qname')].map((e) => e.textContent)).toEqual(['Lily', 'Sam', 'Ava', 'Theo', 'Mia']);
 });
