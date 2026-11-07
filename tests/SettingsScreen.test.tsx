@@ -31,3 +31,8 @@ test('bad import file shows an error and keeps data', async () => {
   expect(await screen.findByText('Not a Line Change backup')).toBeTruthy();
   expect(loadStore(mem).players[0].name).toBe('Xavi');
 });
+
+test('shows the build version', () => {
+  openSettings();
+  expect(screen.getByTestId('version').textContent).toMatch(/^Version (\d{4}\.\d{2}\.\d{2} · [0-9a-f]{7,}\+?|dev)$/);
+});

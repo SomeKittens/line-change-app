@@ -80,6 +80,7 @@ export function SettingsScreen() {
       </div>
 
       <p class="muted small">{finished} {finished === 1 ? 'game' : 'games'} saved.</p>
+      <p class="muted small" data-testid="version">Version {__APP_VERSION__}</p>
     </section>
   );
 }
